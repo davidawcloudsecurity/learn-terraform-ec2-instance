@@ -13,31 +13,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-locals {
-  instance_number = 2
-}
-
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
-
-variable "instance_type" {
-  type    = string
-  default = "t2.micro"
-}
-
-data "aws_ami" "ami" {
-
-  owners      = ["amazon"]
-  most_recent = true
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-}
-
 resource "aws_vpc" "main" {
   cidr_block           = "172.16.0.0/16"
   enable_dns_hostnames = true
@@ -93,6 +68,13 @@ resource "aws_security_group" "default" {
   name_prefix = "default-sg"
   vpc_id      = aws_vpc.main.id
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -111,6 +93,32 @@ resource "aws_instance" "ec2" {
   ami                    = data.aws_ami.ami.image_id
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.default.id]
+  user_data              = base64encode(file("${path.module}/userdata.sh"))
+}
+
+locals {
+  instance_number = 2
+}
+
+variable "aws_region" {
+  type    = string
+  default = "us-east-1"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+data "aws_ami" "ami" {
+
+  owners      = ["amazon"]
+  most_recent = true
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 output "instanceid" {
