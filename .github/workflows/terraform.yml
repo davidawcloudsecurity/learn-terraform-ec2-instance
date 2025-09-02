@@ -46,6 +46,7 @@ jobs:
         run: |
           terraform plan
           ls -lah
+          echo test > test.txt
 
       - name: Git Config
         run: |
