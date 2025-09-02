@@ -1,15 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 name: Connect to an AWS role from a GitHub repository
 
-# Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 env:
-  
   AWS_REGION : "us-east-1" #Change to reflect your Region
 
 # Permission can be added at job level or workflow level    
@@ -17,7 +12,7 @@ permissions:
       id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
 jobs:
-  AssumeRoleAndCallIdentity:
+  Destroy:
     runs-on: ubuntu-latest
     steps:
       - name: Git clone the repository
@@ -36,14 +31,48 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         
-      - name: Terraform Init
-        run: terraform init
-        
-      - name: Terraform Validate
-        run: terraform validate
-        
-      - name: Terraform Plan
+      - name: Initialize, validate, format Terraform
         run: |
-          terraform plan
           ls -lah
-   
+          pwd
+          ls -lah state
+          mv state/terraform.tfstate ./terraform.tfstate
+          ls -lah
+          echo "Terraform init"
+          echo ""
+          terraform init
+          terraform validate
+          terraform fmt
+      
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform State
+        run: terraform state list
+      
+      - name: Terraform Destroy Targeted Resources
+        run: |
+          terraform destroy -var-file="terraform.tfvars.json" -auto-approve -input=false
+          if [ -n "$(aws iam list-roles --query 'Roles[*].RoleName' | grep AmazonSSMManagedInstanceRole | sed 's/[",]//g')" ]; then
+            aws iam delete-role --role-name "$(aws iam list-roles --query 'Roles[*].RoleName' | grep AmazonSSMManagedInstanceRole | sed 's/[",]//g')"
+          fi
+          if [ -n "$(aws iam list-instance-profiles --query InstanceProfiles[*].InstanceProfileName | grep AmazonSSMManagedInstanceProfile | sed 's/[",]//g')" ]; then
+            aws iam delete-instance-profile --instance-profile-name "$(aws iam list-instance-profiles --query InstanceProfiles[*].InstanceProfileName | grep AmazonSSMManagedInstanceProfile | sed 's/[",]//g')"
+          fi          
+
+      - name: Clean tfstate and Git
+        run: |
+          echo "" > state/terraform.tfstate
+          mv terraform.tfstate state                    
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/davidawcloudsecurity/learn-terraform-aws-wordpress-ec2.git                   
+          git fetch origin destroy/main
+          git checkout destroy/main
+          git merge origin/destroy/main
+          # Get the latest commit hash
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          git add state
+          git commit -m "clean-${COMMIT_HASH}"    
+          git push -u origin          
+          pwd
