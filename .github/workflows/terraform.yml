@@ -45,7 +45,10 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan
-          ls -lah
+
+      - name: Terraform Apply
+        run: |
+          terraform apply --auto-approve          
 
       - name: Git Config
         run: |
