@@ -44,24 +44,7 @@ jobs:
           if ! aws s3api head-bucket --bucket learn-terraform-ec2-instance-terraform-state 2>/dev/null; then
             aws s3api create-bucket --bucket learn-terraform-ec2-instance-terraform-state --region $AWS_REGION
           else
-            echo "S3 bucket already exists"
-            echo "Deleting backend S3 bucket and DynamoDB table..."
-            # Delete all object versions and delete markers
-            aws s3api delete-objects \
-              --bucket learn-terraform-ec2-instance-terraform-state \
-              --delete "$(aws s3api list-object-versions \
-                --bucket learn-terraform-ec2-instance-terraform-state \
-                --query '{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
-                --max-items 1000)"
-            # Delete all delete markers
-            aws s3api delete-objects \
-              --bucket learn-terraform-ec2-instance-terraform-state \
-              --delete "$(aws s3api list-object-versions \
-                --bucket learn-terraform-ec2-instance-terraform-state \
-                --query '{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}' \
-                --max-items 1000)"              
-            aws s3 rb s3://learn-terraform-ec2-instance-terraform-state --force
-            aws dynamodb delete-table --table-name terraform-locks            
+            echo "S3 bucket already exists"     
           fi
       - name: Create DynamoDB Table
         run: |
