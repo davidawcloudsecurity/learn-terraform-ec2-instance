@@ -111,6 +111,8 @@ jobs:
       - name: Terraform Destroy on Failure
         if: failure()
         run: |
+          aws s3 rb s3://learn-terraform-ec2-instance-terraform-state --force
+          aws dynamodb delete-table --table-name terraform-locks        
           terraform destroy -auto-approve -input=false
           echo "Check if AmazonSSMManagedInstanceRole exist"
           if [ -n "$(aws iam list-roles --query 'Roles[*].RoleName' | grep AmazonSSMManagedInstanceRole | sed 's/[",]//g')" ]; then
