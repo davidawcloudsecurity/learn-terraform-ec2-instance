@@ -38,7 +38,7 @@ jobs:
 
       - name: Create S3 Bucket
         run: |
-          aws s3api create-bucket --bucket my-terraform-state --region ap-southeast-1 || echo "Bucket exists"
+          aws s3api create-bucket --bucket my-terraform-state --region us-east-1 || echo "Bucket exists"
           aws s3api put-bucket-versioning --bucket my-terraform-state --versioning-configuration Status=Enabled
       - name: Create DynamoDB Table
         run: |
