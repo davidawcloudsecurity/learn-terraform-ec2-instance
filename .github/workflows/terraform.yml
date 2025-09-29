@@ -70,7 +70,7 @@ jobs:
           if [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
             terraform destroy -auto-approve
           else
-            terraform apply -auto-approve tfplan
+            terraform apply -auto-approve
           fi   
 
       - name: Git Config
