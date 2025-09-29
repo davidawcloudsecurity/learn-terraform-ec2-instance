@@ -57,12 +57,12 @@ jobs:
           
           # Fetch the latest changes from the remote 'destroy/main' branch
           git status
+          git stash          
           echo "git fetch"
           git fetch origin destroy/main
           git add main.tf
           git commit -m "random-${COMMIT_HASH}"
           cp main.tf main.tf.origin
-          git stash
           echo "git checkout"
           git checkout destroy/main
           echo "git merge"
@@ -76,7 +76,6 @@ jobs:
           git commit -m "random-${COMMIT_HASH}"
           # Push the changes to the 'destroy/main' branch
           git push origin destroy/main
-        continue-on-error: true  # Critical: Continue even if backup fails     
 
       - name: Terraform Destroy on Failure
         if: failure()
