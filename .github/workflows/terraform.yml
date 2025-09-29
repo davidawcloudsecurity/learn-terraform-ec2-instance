@@ -38,8 +38,8 @@ jobs:
 
       - name: Create S3 Bucket
         run: |
-          aws s3api create-bucket --bucket my-terraform-state --region us-east-1 || echo "Bucket exists"
-          aws s3api put-bucket-versioning --bucket my-terraform-state --versioning-configuration Status=Enabled
+          aws s3api create-bucket --bucket learn-terraform-ec2-instance-terraform-state --region us-east-1 || echo "Bucket exists"
+          aws s3api put-bucket-versioning --bucket learn-terraform-ec2-instance-terraform-state --versioning-configuration Status=Enabled
       - name: Create DynamoDB Table
         run: |
           aws dynamodb describe-table --table-name terraform-locks || \
