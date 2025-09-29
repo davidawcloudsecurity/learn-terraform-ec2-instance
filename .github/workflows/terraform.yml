@@ -91,7 +91,7 @@ jobs:
             else
               echo "DynamoDB table terraform-locks already exists"
             fi          
-            echo "Terraform Init
+            echo "Terraform Init"
             terraform init          
             echo "Terraform Validate"
             terraform validate          
