@@ -75,16 +75,21 @@ jobs:
 
       - name: Terraform Apply or Destroy
         run: |
-          if [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
+          set -e  # fail on any error
+      
+          ACTION="${{ github.event.inputs.action }}"
+          DESTROY_BACKEND="${{ github.event.inputs.destroy-backend }}"
+      
+          if [[ "$ACTION" == "destroy" ]]; then
             echo "Destroying main infrastructure..."
             terraform destroy -auto-approve
-
-            # Optional: Destroy backend
-            if [[ "${{ github.event.inputs.destroy-backend }}" == "true" ]]; then
+      
+            if [[ "$DESTROY_BACKEND" == "true" ]]; then
               echo "Deleting backend S3 bucket and DynamoDB table..."
               aws s3 rb s3://learn-terraform-ec2-instance-terraform-state --force
               aws dynamodb delete-table --table-name terraform-locks
             fi
+      
           else
             echo "Applying infrastructure..."
             terraform apply -auto-approve
