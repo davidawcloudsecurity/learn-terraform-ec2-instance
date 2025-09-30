@@ -88,7 +88,6 @@ jobs:
             terraform destroy -auto-approve
       
             if [[ "$DESTROY_BACKEND" == "true" ]]; then
-            if [[ "$DESTROY_BACKEND" == "true" ]]; then
               echo "Deleting backend S3 bucket and DynamoDB table..."
               
               # Check if there are any versions before trying to delete them
