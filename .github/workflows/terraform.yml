@@ -62,6 +62,18 @@ jobs:
           else
             echo "DynamoDB table terraform-locks already exists"
           fi
+
+      - name: Clean up inconsistent state (if exists)
+        run: |
+          # Remove any stale DynamoDB digest entries
+          aws dynamodb delete-item \
+            --table-name terraform-locks \
+            --key '{"LockID":{"S":"learn-terraform-ec2-instance-terraform-state/project1/terraform.tfstate-md5"}}' \
+            2>/dev/null || true
+          
+          # Remove corrupted state files
+          aws s3 rm s3://learn-terraform-ec2-instance-terraform-state/project1/terraform.tfstate \
+            2>/dev/null || true         
           
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
