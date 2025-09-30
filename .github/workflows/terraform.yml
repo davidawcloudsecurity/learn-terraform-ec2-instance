@@ -83,26 +83,44 @@ jobs:
             terraform destroy -auto-approve
       
             if [[ "$DESTROY_BACKEND" == "true" ]]; then
+            if [[ "$DESTROY_BACKEND" == "true" ]]; then
               echo "Deleting backend S3 bucket and DynamoDB table..."
-              # Delete all object versions and delete markers
-              aws s3api delete-objects \
-                --bucket learn-terraform-ec2-instance-terraform-state \
-                --delete "$(aws s3api list-object-versions \
-                  --bucket learn-terraform-ec2-instance-terraform-state \
-                  --query '{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
-                  --max-items 1000)"
               
-              # Delete all delete markers
-              aws s3api delete-objects \
+              # Check if there are any versions before trying to delete them
+              VERSIONS=$(aws s3api list-object-versions \
                 --bucket learn-terraform-ec2-instance-terraform-state \
-                --delete "$(aws s3api list-object-versions \
+                --query 'Versions[].{Key:Key,VersionId:VersionId}' \
+                --max-items 1000)
+              
+              if [[ $VERSIONS != "[]" ]]; then
+                aws s3api delete-objects \
                   --bucket learn-terraform-ec2-instance-terraform-state \
-                  --query '{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}' \
-                  --max-items 1000)"              
+                  --delete "$(aws s3api list-object-versions \
+                    --bucket learn-terraform-ec2-instance-terraform-state \
+                    --query '{Objects: Versions[].{Key:Key,VersionId:VersionId}}' \
+                    --max-items 1000)"
+              fi
+            
+              # Check if there are any delete markers before trying to delete them
+              DELETE_MARKERS=$(aws s3api list-object-versions \
+                --bucket learn-terraform-ec2-instance-terraform-state \
+                --query 'DeleteMarkers[].{Key:Key,VersionId:VersionId}' \
+                --max-items 1000)
+              
+              if [[ $DELETE_MARKERS != "[]" ]]; then
+                aws s3api delete-objects \
+                  --bucket learn-terraform-ec2-instance-terraform-state \
+                  --delete "$(aws s3api list-object-versions \
+                    --bucket learn-terraform-ec2-instance-terraform-state \
+                    --query '{Objects: DeleteMarkers[].{Key:Key,VersionId:VersionId}}' \
+                    --max-items 1000)"
+              fi
+            
+              # Delete the bucket and DynamoDB table
               aws s3 rb s3://learn-terraform-ec2-instance-terraform-state --force
               aws dynamodb delete-table --table-name terraform-locks
             fi
-      
+     
           else
             echo "Applying infrastructure..."
             terraform apply -auto-approve
