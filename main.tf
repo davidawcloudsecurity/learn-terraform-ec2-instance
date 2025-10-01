@@ -97,7 +97,7 @@ resource "aws_instance" "ec2" {
 }
 
 locals {
-  instance_number = 2
+  instance_number = 1
 }
 
 variable "aws_region" {
@@ -107,7 +107,7 @@ variable "aws_region" {
 
 variable "instance_type" {
   type    = string
-  default = "t2.micro"
+  default = "t3.medium"
 }
 
 data "aws_ami" "ami" {
