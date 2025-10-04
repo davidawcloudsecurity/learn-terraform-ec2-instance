@@ -111,7 +111,7 @@ data "aws_ami" "ami" {
   
   filter {
     name   = "architecture"
-    values = ["arm64"]  # or ["x86_64"] if using ARM instances
+    values = ["x86_64"]  # or ["arm64"] if using ARM instances
   }
 }
 
