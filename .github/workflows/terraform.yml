@@ -73,20 +73,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Format
-        run: terraform fmt -recursive
-      
-      - name: Commit and Push Terraform Changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          if [[ -n $(git status -s) ]]; then
-            git add .
-            git commit -m "chore: apply terraform formatting [skip ci]"
-            git push
-          else
-            echo "No formatting changes to commit"
-          fi        
+        run: terraform fmt -recursive  
         
       - name: Terraform Plan
         run: |
