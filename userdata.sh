@@ -7,12 +7,12 @@ echo 'ssm-user2:P@ssw0rd123!' | chpasswd
 # Install packages based on available package manager
 if command -v yum &> /dev/null; then
     yum update -y
-    yum install -y httpd
+    yum install -y httpd git
     systemctl start httpd
     systemctl enable httpd
 elif command -v apt &> /dev/null; then
     apt update -y
-    apt install -y apache2
+    apt install -y apache2 git
     systemctl start apache2
     systemctl enable apache2
 fi
@@ -25,6 +25,9 @@ else
     mkdir -p $WEB_ROOT
 fi
 
+# Clone repository and copy website content
+cd /tmp
+git clone https://github.com/davidawcloudsecurity/learn-terraform-ec2-instance.git
+cp -r /tmp/learn-terraform-ec2-instance/personal-blog-website/* $WEB_ROOT/
+
 echo "Q1RGe2gxZGQzbl9pbl90aGVfdXNlcl9kYXRhfQ==" | base64 -d > $WEB_ROOT/flag.txt
-echo "<h1>Welcome to the CTF Challenge</h1>" > $WEB_ROOT/index.html
-echo "<p>Find the hidden flag!</p>" >> $WEB_ROOT/index.html
