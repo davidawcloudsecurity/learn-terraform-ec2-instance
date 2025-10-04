@@ -11,3 +11,8 @@ variable "aws_region" {
     error_message = "AWS region must be valid (e.g., us-east-1, eu-central-1)."
   }
 }
+
+variable "instance_type" {
+  type    = string
+  default = "t3.medium"
+}
