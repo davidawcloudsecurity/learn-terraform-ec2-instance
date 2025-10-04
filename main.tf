@@ -100,16 +100,6 @@ locals {
   instance_number = 1
 }
 
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
-
-variable "instance_type" {
-  type    = string
-  default = "t3.medium"
-}
-
 data "aws_ami" "ami" {
 
   owners      = ["amazon"]
@@ -119,8 +109,4 @@ data "aws_ami" "ami" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-}
-
-output "instanceid" {
-  value = aws_instance.ec2.*.id
 }
