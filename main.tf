@@ -101,7 +101,6 @@ locals {
 }
 
 data "aws_ami" "ami" {
-
   owners      = ["amazon"]
   most_recent = true
 
@@ -109,4 +108,10 @@ data "aws_ami" "ami" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+  
+  filter {
+    name   = "architecture"
+    values = ["arm64"]  # or ["x86_64"] if using ARM instances
+  }
 }
+
