@@ -126,6 +126,8 @@ jobs:
           else
             echo "Applying infrastructure..."
             terraform apply -auto-approve
+            echo "Displaying Terraform outputs..."
+            terraform output            
           fi
 
       - name: Terraform Destroy on Failure
