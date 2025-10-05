@@ -128,6 +128,8 @@ resource "aws_s3_bucket_public_access_block" "images" {
 
 resource "aws_s3_bucket_policy" "images" {
   bucket = aws_s3_bucket.images.id
+  depends_on = [aws_s3_bucket_public_access_block.images]
+  
   policy = jsonencode({
     Statement = [{
       Effect = "Allow"
