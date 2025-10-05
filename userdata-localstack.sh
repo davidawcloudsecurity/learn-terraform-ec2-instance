@@ -71,10 +71,22 @@ cat > /etc/apache2/sites-available/s3.thetoppers.htb.conf << 'EOF'
 </VirtualHost>
 EOF
 
+# Create default virtual host for localhost
+cat > /etc/apache2/sites-available/000-default.conf << 'EOF'
+<VirtualHost *:80>
+    DocumentRoot /var/www/html
+    
+    <Directory /var/www/html>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+EOF
+
 # Enable sites
+a2ensite 000-default.conf
 a2ensite thetoppers.htb.conf
 a2ensite s3.thetoppers.htb.conf
-a2dissite 000-default
 
 # Configure hosts file
 cat >> /etc/hosts << 'EOF'
@@ -89,8 +101,24 @@ docker-compose up -d
 # Wait for LocalStack to be ready
 sleep 30
 
-# Create S3 bucket
-aws --endpoint-url=http://127.0.0.1:4566 s3 mb s3://thetoppers.htb
+# Wait for LocalStack S3 service to be fully ready
+for i in {1..10}; do
+    if curl -s http://127.0.0.1:4566/_localstack/health | grep -q '"s3": "available"'; then
+        break
+    fi
+    echo "Waiting for LocalStack S3 service... attempt $i"
+    sleep 10
+done
+
+# Create S3 bucket with retry
+for i in {1..3}; do
+    if aws --endpoint-url=http://127.0.0.1:4566 s3 mb s3://thetoppers.htb; then
+        echo "S3 bucket created successfully"
+        break
+    fi
+    echo "Failed to create S3 bucket, retrying... attempt $i"
+    sleep 5
+done
 
 # Clone and deploy blog website
 apt install -y git
