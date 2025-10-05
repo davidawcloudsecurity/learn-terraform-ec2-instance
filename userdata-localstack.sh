@@ -92,9 +92,14 @@ sleep 30
 # Create S3 bucket
 aws --endpoint-url=http://127.0.0.1:4566 s3 mb s3://thetoppers.htb
 
+# Clone and deploy blog website
+apt install -y git
+cd /tmp
+git clone https://github.com/davidawcloudsecurity/learn-terraform-ec2-instance.git
+cp -r /tmp/learn-terraform-ec2-instance/personal-blog-website/* /var/www/html/
+
 # Create test files
 echo "<?php phpinfo(); ?>" > /var/www/html/info.php
-echo "<h1>Welcome to thetoppers.htb</h1>" > /var/www/html/index.html
 echo "Test file from S3" > /tmp/test.txt
 
 # Upload test file to S3
