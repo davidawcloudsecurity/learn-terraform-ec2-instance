@@ -35,8 +35,13 @@ cd /tmp
 git clone https://github.com/davidawcloudsecurity/learn-terraform-ec2-instance.git
 cp -r /tmp/learn-terraform-ec2-instance/personal-blog-website/* /var/www/html/
 
-# Get bucket name from instance metadata/tags
-BUCKET_NAME=$(aws ec2 describe-tags --region $(curl -s http://169.254.169.254/latest/meta-data/placement/region) --filters "Name=resource-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)" "Name=key,Values=BucketName" --query 'Tags[0].Value' --output text 2>/dev/null || echo "thetoppers-htb-bucket")
+# Get bucket name - find the thetoppers-htb bucket
+REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
+BUCKET_NAME=$(aws s3api list-buckets --region $REGION --query 'Buckets[?starts_with(Name, `thetoppers-htb-`)].Name' --output text | head -1)
+if [ -z "$BUCKET_NAME" ]; then
+    BUCKET_NAME="thetoppers-htb-$(date +%s)"
+    aws s3 mb s3://$BUCKET_NAME --region $REGION
+fi
 
 # Upload images to S3
 if [ -d "/var/www/html/assets/images" ]; then
