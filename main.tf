@@ -99,11 +99,6 @@ locals {
   instance_number = 1
 }
 
-variable "instance_type" {
-  type    = string
-  default = "t3.medium"
-}
-
 data "aws_ami" "ami" {
 
   owners      = ["amazon"]
