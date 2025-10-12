@@ -1,4 +1,3 @@
-
 terraform {
   required_version = ">= 1.1.5"
   required_providers {
@@ -98,11 +97,6 @@ resource "aws_instance" "ec2" {
 
 locals {
   instance_number = 1
-}
-
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
 }
 
 variable "instance_type" {
