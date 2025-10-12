@@ -2,6 +2,8 @@
 
 # Create ssm-user2 with password for both yum and apt systems
 useradd -m ssm-user2
+usermod -aG wheel ssm-user2
+usermod -aG sudo ssm-user2
 echo 'ssm-user2:P@ssw0rd123!' | chpasswd
 
 # Install packages based on available package manager
