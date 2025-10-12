@@ -120,7 +120,3 @@ data "aws_ami" "ami" {
     values = ["hvm"]
   }
 }
-
-output "instanceid" {
-  value = aws_instance.ec2.*.id
-}
